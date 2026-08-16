@@ -76,7 +76,7 @@ class _CreateAppointmentScreenState extends State<CreateAppointmentScreen> {
                   labelText: 'Selecciona un doctor',
                   border: OutlineInputBorder(),
                 ),
-                value: _selectedDoctorId,
+                value: _selectedDoctorId, // ✅ CORREGIDO: initialValue → value
                 items: _doctores.map((doctor) {
                   return DropdownMenuItem<int>(
                     value: doctor['id'],
