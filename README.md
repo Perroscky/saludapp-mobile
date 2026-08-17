@@ -1,4 +1,4 @@
-# saludapp_mobile_v2
+# saludapp_mobile
 
 A new Flutter project.
 
