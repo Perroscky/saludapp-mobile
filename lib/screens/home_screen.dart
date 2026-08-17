@@ -5,6 +5,9 @@ import '../screens/appointments_screen.dart';
 import '../screens/create_appointment_screen.dart';
 import '../screens/profile_screen.dart';
 
+// 🔥 Clave global para acceder al estado de HomeScreen
+final GlobalKey<_HomeScreenState> homeScreenKey = GlobalKey<_HomeScreenState>();
+
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -14,6 +17,13 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
+
+  // 🔥 Método público para cambiar de pestaña
+  void goToTab(int index) {
+    setState(() {
+      _currentIndex = index;
+    });
+  }
 
   final List<Widget> _screens = const [
     AppointmentsScreen(),
@@ -34,6 +44,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: homeScreenKey, // 🔥 Asignar la clave global
       appBar: AppBar(
         title: const Text('SaludApp'),
         actions: [
