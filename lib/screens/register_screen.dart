@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import '../services/api_service.dart';
 import '../screens/login_screen.dart';
+import '../routes/app_routes.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -42,10 +43,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
         textColor: Colors.white,
       );
       if (mounted) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => const LoginScreen()),
-        );
+        // 🔥 Navegación con enrutador
+        Navigator.pushReplacementNamed(context, AppRoutes.login);
       }
     } else {
       Fluttertoast.showToast(
@@ -177,10 +176,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   const Text('¿Ya tienes cuenta?'),
                   TextButton(
                     onPressed: () {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(builder: (_) => const LoginScreen()),
-                      );
+                      // 🔥 Navegación con enrutador
+                      Navigator.pushReplacementNamed(context, AppRoutes.login);
                     },
                     child: const Text('Inicia sesión'),
                   ),

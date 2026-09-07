@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import '../services/api_service.dart';
 import '../models/appointment.dart';
+import '../models/state_status.dart';
 import '../screens/create_appointment_screen.dart';
-import 'home_screen.dart'; // 👈 Importar home_screen para usar la clave global
+import '../screens/appointment_detail_screen.dart';
+import '../routes/app_routes.dart';
+import 'home_screen.dart';
 
 class AppointmentsScreen extends StatefulWidget {
   const AppointmentsScreen({super.key});
@@ -13,8 +16,8 @@ class AppointmentsScreen extends StatefulWidget {
 }
 
 class _AppointmentsScreenState extends State<AppointmentsScreen> {
-  List<Appointment> _appointments = [];
-  bool _isLoading = true;
+  // 🔥 Estado de la aplicación usando tipos cerrados
+  AppointmentsState _state = const AppointmentsLoading();
   String _userName = '';
 
   @override
@@ -32,92 +35,131 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
   }
 
   Future<void> _loadAppointments() async {
-    setState(() => _isLoading = true);
+    setState(() {
+      _state = const AppointmentsLoading();
+    });
 
     try {
       final appointments = await ApiService.getAppointments();
-      setState(() {
-        _appointments = appointments;
-        _isLoading = false;
-      });
+      
+      if (appointments.isEmpty) {
+        setState(() {
+          _state = const AppointmentsEmpty();
+        });
+      } else {
+        setState(() {
+          _state = AppointmentsLoaded(appointments);
+        });
+      }
     } catch (e) {
       setState(() {
-        _appointments = [];
-        _isLoading = false;
+        _state = AppointmentsError('Error al cargar citas: $e');
       });
     }
   }
 
   void _goToCreateAppointment() {
-    // 🔥 Usar la clave global para acceder a HomeScreen
     final homeState = homeScreenKey.currentState;
     if (homeState != null) {
-      homeState.goToTab(1); // Ir a la pestaña "Crear" (índice 1)
+      homeState.goToTab(1);
     } else {
-      // Fallback: si no encuentra HomeScreen, ir directamente a la pantalla de crear cita
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => const CreateAppointmentScreen()),
-      );
+      Navigator.pushNamed(context, AppRoutes.createAppointment);
     }
+  }
+
+  void _goToAppointmentDetail(int id) {
+    AppRoutes.navigateToAppointmentDetail(context, id);
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
-    }
-
-    if (_appointments.isEmpty) {
-      return _buildEmptyState();
-    }
-
-    return RefreshIndicator(
-      onRefresh: _loadAppointments,
-      child: ListView.builder(
-        padding: const EdgeInsets.all(16),
-        itemCount: _appointments.length,
-        itemBuilder: (context, index) {
-          final appointment = _appointments[index];
-          return Card(
-            margin: const EdgeInsets.only(bottom: 12),
-            child: ListTile(
-              leading: CircleAvatar(
-                backgroundColor: appointment.estadoColor,
-                child: Text(
-                  appointment.nombreDoctor[0].toUpperCase(),
-                  style: const TextStyle(color: Colors.white),
-                ),
-              ),
-              title: Text(appointment.nombreDoctor),
-              subtitle: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (appointment.doctorEspecialidad != null)
-                    Text(appointment.doctorEspecialidad!),
-                  if (appointment.doctorConsultorio != null)
-                    Text('Consultorio: ${appointment.doctorConsultorio}'),
-                  const SizedBox(height: 4),
-                  Text(appointment.fechaFormateada),
-                ],
-              ),
-              trailing: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                decoration: BoxDecoration(
-                  color: appointment.estadoColor,
+    return switch (_state) {
+      AppointmentsLoading() => const Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              CircularProgressIndicator(),
+              SizedBox(height: 16),
+              Text('Cargando citas...'),
+            ],
+          ),
+        ),
+      
+      AppointmentsEmpty() => _buildEmptyState(),
+      
+      AppointmentsLoaded(data: final appointments) => RefreshIndicator(
+          onRefresh: _loadAppointments,
+          child: ListView.builder(
+            padding: const EdgeInsets.all(16),
+            itemCount: appointments.length,
+            itemBuilder: (context, index) {
+              final appointment = appointments[index] as Appointment;
+              return Card(
+                margin: const EdgeInsets.only(bottom: 12),
+                child: InkWell(
+                  onTap: () => _goToAppointmentDetail(appointment.id),
                   borderRadius: BorderRadius.circular(12),
+                  child: ListTile(
+                    leading: CircleAvatar(
+                      backgroundColor: appointment.estadoColor,
+                      child: Text(
+                        appointment.nombreDoctor[0].toUpperCase(),
+                        style: const TextStyle(color: Colors.white),
+                      ),
+                    ),
+                    title: Text(appointment.nombreDoctor),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (appointment.doctorEspecialidad != null)
+                          Text(appointment.doctorEspecialidad!),
+                        if (appointment.doctorConsultorio != null)
+                          Text('Consultorio: ${appointment.doctorConsultorio}'),
+                        const SizedBox(height: 4),
+                        Text(appointment.fechaFormateada),
+                      ],
+                    ),
+                    trailing: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: appointment.estadoColor,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text(
+                        appointment.estadoFormateado,
+                        style: const TextStyle(color: Colors.white, fontSize: 12),
+                      ),
+                    ),
+                    isThreeLine: true,
+                  ),
                 ),
-                child: Text(
-                  appointment.estadoFormateado,
-                  style: const TextStyle(color: Colors.white, fontSize: 12),
-                ),
+              );
+            },
+          ),
+        ),
+      
+      AppointmentsError(message: final message) => Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.error_outline, size: 64, color: Colors.red),
+              const SizedBox(height: 16),
+              Text(
+                message,
+                style: const TextStyle(fontSize: 16),
+                textAlign: TextAlign.center,
               ),
-              isThreeLine: true,
-            ),
-          );
-        },
-      ),
-    );
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: _loadAppointments,
+                child: const Text('Reintentar'),
+              ),
+            ],
+          ),
+        ),
+      
+      _ => const SizedBox.shrink(),
+    };
   }
 
   Widget _buildEmptyState() {
@@ -127,7 +169,6 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // 🌟 Icono animado
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
@@ -141,8 +182,6 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
               ),
             ),
             const SizedBox(height: 24),
-
-            // 👋 Mensaje de bienvenida
             Text(
               '¡Hola, $_userName! 👋',
               style: const TextStyle(
@@ -151,8 +190,6 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
               ),
             ),
             const SizedBox(height: 8),
-
-            // 📝 Subtítulo
             const Text(
               'Tu salud es nuestra prioridad',
               style: TextStyle(
@@ -161,8 +198,6 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
               ),
             ),
             const SizedBox(height: 32),
-
-            // 🏥 Tarjeta informativa
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
@@ -192,8 +227,6 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
               ),
             ),
             const SizedBox(height: 32),
-
-            // 🚀 Botón para crear cita
             SizedBox(
               width: double.infinity,
               height: 56,

@@ -4,8 +4,8 @@ import '../screens/login_screen.dart';
 import '../screens/appointments_screen.dart';
 import '../screens/create_appointment_screen.dart';
 import '../screens/profile_screen.dart';
+import '../routes/app_routes.dart';
 
-// 🔥 Clave global para acceder al estado de HomeScreen
 final GlobalKey<_HomeScreenState> homeScreenKey = GlobalKey<_HomeScreenState>();
 
 class HomeScreen extends StatefulWidget {
@@ -18,7 +18,6 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
 
-  // 🔥 Método público para cambiar de pestaña
   void goToTab(int index) {
     setState(() {
       _currentIndex = index;
@@ -34,17 +33,14 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _logout() async {
     await ApiService.logout();
     if (mounted) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const LoginScreen()),
-      );
+      Navigator.pushReplacementNamed(context, AppRoutes.login);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      key: homeScreenKey, // 🔥 Asignar la clave global
+      key: homeScreenKey,
       appBar: AppBar(
         title: const Text('SaludApp'),
         actions: [

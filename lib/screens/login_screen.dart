@@ -3,6 +3,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import '../services/api_service.dart';
 import '../screens/home_screen.dart';
 import '../screens/register_screen.dart';
+import '../routes/app_routes.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -32,10 +33,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
     if (result['success']) {
       if (mounted) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => const HomeScreen()),
-        );
+        // 🔥 Navegación con enrutador
+        Navigator.pushReplacementNamed(context, AppRoutes.home);
       }
     } else {
       Fluttertoast.showToast(
@@ -56,13 +55,13 @@ class _LoginScreenState extends State<LoginScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(
+              Icon(
                 Icons.medical_services,
                 size: 80,
                 color: Colors.blue,
               ),
               const SizedBox(height: 16),
-              const Text(
+              Text(
                 'SaludApp',
                 style: TextStyle(
                   fontSize: 32,
@@ -77,7 +76,6 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               const SizedBox(height: 40),
 
-              // Email
               TextFormField(
                 controller: _emailController,
                 decoration: const InputDecoration(
@@ -98,7 +96,6 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               const SizedBox(height: 16),
 
-              // Contraseña
               TextFormField(
                 controller: _passwordController,
                 obscureText: _obscurePassword,
@@ -127,7 +124,6 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               const SizedBox(height: 24),
 
-              // Botón
               SizedBox(
                 width: double.infinity,
                 height: 50,
@@ -140,17 +136,14 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               const SizedBox(height: 16),
 
-              // Registro
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const Text('¿No tienes cuenta?'),
                   TextButton(
                     onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => const RegisterScreen()),
-                      );
+                      // 🔥 Navegación con enrutador
+                      Navigator.pushNamed(context, AppRoutes.register);
                     },
                     child: const Text('Regístrate'),
                   ),
