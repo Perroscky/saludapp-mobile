@@ -1,12 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import '../services/api_service.dart';
 import '../models/appointment.dart';
 import '../models/state_status.dart';
-import '../screens/create_appointment_screen.dart';
-import '../screens/appointment_detail_screen.dart';
 import '../routes/app_routes.dart';
-import 'home_screen.dart';
 
 class AppointmentsScreen extends StatefulWidget {
   const AppointmentsScreen({super.key});
@@ -41,7 +37,7 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
 
     try {
       final appointments = await ApiService.getAppointments();
-      
+
       if (appointments.isEmpty) {
         setState(() {
           _state = const AppointmentsEmpty();
@@ -59,12 +55,8 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
   }
 
   void _goToCreateAppointment() {
-    final homeState = homeScreenKey.currentState;
-    if (homeState != null) {
-      homeState.goToTab(1);
-    } else {
-      Navigator.pushNamed(context, AppRoutes.createAppointment);
-    }
+    // 🔥 Navegar a la pestaña "Crear" usando el enrutador
+    Navigator.pushNamed(context, AppRoutes.createAppointment);
   }
 
   void _goToAppointmentDetail(int id) {
@@ -84,9 +76,9 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
             ],
           ),
         ),
-      
+
       AppointmentsEmpty() => _buildEmptyState(),
-      
+
       AppointmentsLoaded(data: final appointments) => RefreshIndicator(
           onRefresh: _loadAppointments,
           child: ListView.builder(
@@ -137,7 +129,7 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
             },
           ),
         ),
-      
+
       AppointmentsError(message: final message) => Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -157,7 +149,7 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
             ],
           ),
         ),
-      
+
       _ => const SizedBox.shrink(),
     };
   }

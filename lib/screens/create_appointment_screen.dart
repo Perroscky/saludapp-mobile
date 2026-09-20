@@ -2,10 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import '../services/api_service.dart';
 import '../services/notification_service.dart';
-import '../routes/app_routes.dart';
 
 class CreateAppointmentScreen extends StatefulWidget {
-  const CreateAppointmentScreen({super.key});
+  // 🔥 Callback para notificar al Home que se creó una cita
+  final Function(int)? onAppointmentCreated;
+
+  const CreateAppointmentScreen({
+    super.key,
+    this.onAppointmentCreated,
+  });
 
   @override
   State<CreateAppointmentScreen> createState() => _CreateAppointmentScreenState();
@@ -99,8 +104,10 @@ class _CreateAppointmentScreenState extends State<CreateAppointmentScreen> {
       textColor: Colors.white,
     );
 
-    // 🔥 Navegación con enrutador
-    Navigator.pushReplacementNamed(context, AppRoutes.appointments);
+    // 🔥 Notificar al Home que se creó una cita
+    if (widget.onAppointmentCreated != null) {
+      widget.onAppointmentCreated!(0); // 0 = pestaña "Citas"
+    }
   }
 
   @override

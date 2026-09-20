@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import '../services/api_service.dart';
-import '../screens/home_screen.dart';
 import '../screens/register_screen.dart';
 import '../routes/app_routes.dart';
 
@@ -33,8 +32,12 @@ class _LoginScreenState extends State<LoginScreen> {
 
     if (result['success']) {
       if (mounted) {
-        // 🔥 Navegación con enrutador
-        Navigator.pushReplacementNamed(context, AppRoutes.home);
+        // 🔥 Navegar al Home eliminando el historial
+        Navigator.pushNamedAndRemoveUntil(
+          context,
+          AppRoutes.home,
+          (route) => false,
+        );
       }
     } else {
       Fluttertoast.showToast(
@@ -142,7 +145,6 @@ class _LoginScreenState extends State<LoginScreen> {
                   const Text('¿No tienes cuenta?'),
                   TextButton(
                     onPressed: () {
-                      // 🔥 Navegación con enrutador
                       Navigator.pushNamed(context, AppRoutes.register);
                     },
                     child: const Text('Regístrate'),

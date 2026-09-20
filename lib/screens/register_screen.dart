@@ -42,9 +42,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
         backgroundColor: Colors.green,
         textColor: Colors.white,
       );
+
+      // 🔥 Navegar al Home eliminando el historial
       if (mounted) {
-        // 🔥 Navegación con enrutador
-        Navigator.pushReplacementNamed(context, AppRoutes.login);
+        Navigator.pushNamedAndRemoveUntil(
+          context,
+          AppRoutes.home,
+          (route) => false,
+        );
       }
     } else {
       Fluttertoast.showToast(
@@ -176,7 +181,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   const Text('¿Ya tienes cuenta?'),
                   TextButton(
                     onPressed: () {
-                      // 🔥 Navegación con enrutador
                       Navigator.pushReplacementNamed(context, AppRoutes.login);
                     },
                     child: const Text('Inicia sesión'),
